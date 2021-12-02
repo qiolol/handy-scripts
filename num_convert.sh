@@ -42,7 +42,7 @@ function check_input() {
         # correct arg format
         if [[ "${FROM}" =~ ^2|10|16$ &&
             "${TO}" =~ ^[0-9]+$ &&
-            "${NUM}" =~ ^[0-9]+$ ]]
+            "${NUM}" =~ ^[0-9a-fA-F]+$ ]]
         then
             return 0
         fi
@@ -53,8 +53,8 @@ function check_input() {
 
 function print_usage() {
     echo "usage: num_convert <from_base> <to_base> <number>"
-    echo -e "\t- from_base can only be 2, 10, or 16"
-    echo -e "\t- to_base can be anything"
+    echo -e "\tfrom_base can only be 2, 10, or 16"
+    echo -e "\tto_base can be anything"
     echo -e "\nconverts a number from one base to another"
     echo "e.g., \"num_convert 10 2 42\" converts \"42\" from decimalt to binary"
 }
