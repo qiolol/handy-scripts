@@ -7,37 +7,42 @@ function check_input() {
     then
         return 0
     fi
-    
+
     return 1
 }
 
 function print_usage() {
     echo "usage: alphnum <string>"
-    echo -e "\nreturns whether given string consists only of alphanumeric chars"
+    echo -e "\nprints whether the string is alphanumeric and returns:"
+    echo -e "\t0 if string is alphanumeric"
+    echo -e "\t1 if string is not alphanumeric"
+    echo -e "\t2 on usage error (like this one)"
+
+    return 2
 }
 
-# prints whether, and returns 0 if, $1 is an alphanumeric string
-function alphnum() {
+# determines whether $1 is an alphanumeric string
+function alnum() {
     if [[ "${1}" =~ ^[[:alnum:]]+$ ]]
     then
-        echo "alphanumeric string"
-        
+        echo "alphanumeric"
+
         return 0
     else
-        echo "not alphanumeric string"
-    
+        echo "not alphanumeric"
+
         return 1
     fi
 }
 
 if check_input "${@}"
 then
-    alphnum "${1}"
-    
+    alnum "${1}"
+
     exit
 else
     print_usage
-    
-    exit 1
+
+    exit
 fi
 

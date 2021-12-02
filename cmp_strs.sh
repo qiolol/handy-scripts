@@ -12,16 +12,25 @@ function check_input() {
 
 function print_usage() {
     echo "usage: cmp_strs <str_one> <str_two>"
-    echo -e "\nreturns whether str_one and str_two are identical"
+    echo -e "\nrprints whether str_one and str_two are identical and returns:"
+    echo -e "\t0 if strings are identical"
+    echo -e "\t1 if strings are not identical"
+    echo -e "\t2 on usage error (like this one)"
+
+    return 2
 }
 
-# returns whether two strings are identical
+# prints whether (and returns 0 if) $1 and $2 are identical strings
 function cmp_strs() {
     if [[ "${1}" == "${2}" ]]
     then
-        echo "identical strings"
+        echo "identical"
+
+        return 0
     else
-        echo "different strings"
+        echo "different"
+
+        return 1
     fi
 }
 
@@ -29,9 +38,9 @@ if check_input "${@}"
 then
     cmp_strs "${1}" "${2}"
     
-    exit 0
+    exit
 else
     print_usage
     
-    exit 1
+    exit
 fi
