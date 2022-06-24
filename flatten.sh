@@ -31,7 +31,12 @@ function check_dirs()
 {
     if [[ -d "${1}" && -d "${2}" ]]
     then
-        return 0
+        if [[ "${1}" != "${2}" ]]
+        then
+            return 0
+        else
+            echo "Input and output directories are the same!"
+        fi
     else
         echo -n "Invalid directory: "
         if [[ ! -d "${1}" ]]
@@ -91,8 +96,8 @@ function flatten()
             then
                 # `--backup=numbered` renames destination files whose names
                 # would collide with files we're transferring, appending ".~1~"
-                # to their filename disambiguate them from the newly-transferred
-                # files.
+                # to their filename to disambiguate them from the
+                # newly-transferred files.
                 cp --preserve=all --backup=numbered "${THING}" "${2}"
             else
                 mv --backup=numbered "${THING}" "${2}"
