@@ -164,6 +164,14 @@ function look_for_leftovers()
         return 0
     fi
 
+    if is_same_dir "${1}" "${DESTINATION_DIR}"
+    then
+        # If $1 was a subdir of $DESTINATION_DIR, we'll eventually have
+        # $1 == $DESTINATION_DIR. We don't care if files are "left over" to
+        # where we were transferring them, so do nothing.
+        return
+    fi
+
     for THING in "${1}"/*
     do
         if [[ -d "${THING}" ]]
