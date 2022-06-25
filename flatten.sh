@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# "Flattens" a directory, moving (or, optionally, copying) all of its files and
-# its subdirectories' files to a destination directory
+# This script "flattens" a directory, moving (or, optionally, copying) all of
+# its files, and all of its subdirectories' files, to a destination directory.
+#
+# In the destination, files that had the same name also get renamed in a way
+# that doesn't break extensions and program associations. For example, three
+# "foo.png" files that existed throughout the source hierarchy will be
+# "foo_2.png", "foo_1.png", and "foo.png" in the destination.
 
 # Checks args, resolving the absolute paths of the input directories via
 # `realpath` and taking into account the optional copy flag
@@ -78,8 +83,9 @@ function flatten()
 {
     if is_same_dir "${1}" "${2}"
     then
-        # If $2 was a subdir of $1, we'll eventually have $1 == $2.
-        # We don't want to copy $1's files into itself, so do nothing.
+        # If $2 was a subdir of $1, we'll eventually have $1 == $2 as we recurse
+        # through $1's subdirs. We don't want to copy $1's files into itself, so
+        # do nothing.
         return
     fi
 
@@ -155,8 +161,8 @@ function rename_backups()
     done
 }
 
-# Makes sure all files were moved (if we're moving files and $COPYING is false),
-# returning 1 if any files remain in the $1 directory and 0 otherwise
+# Makes sure all files were moved from $2 to $1 (assuming we're moving files and
+# $COPYING is false), returning 1 if any files remain in the $1 and 0 otherwise
 function look_for_leftovers()
 {
     if [[ $COPYING == true ]]
@@ -164,11 +170,11 @@ function look_for_leftovers()
         return 0
     fi
 
-    if is_same_dir "${1}" "${DESTINATION_DIR}"
+    if is_same_dir "${1}" "${2}"
     then
-        # If $1 was a subdir of $DESTINATION_DIR, we'll eventually have
-        # $1 == $DESTINATION_DIR. We don't care if files are "left over" to
-        # where we were transferring them, so do nothing.
+        # If $2 was a subdir of $1, we'll eventually have $1 == $2 as we recurse
+        # through $1's subdirs. We don't care if files are "left over" to where
+        # we were transferring them, so do nothing.
         return
     fi
 
@@ -198,7 +204,7 @@ then
 
         if [[ $COPYING == false ]]
         then
-            look_for_leftovers "${SOURCE_DIR}"
+            look_for_leftovers "${SOURCE_DIR}" "${DESTINATION_DIR}"
 
             exit $? # Exit with `look_for_leftovers()`'s status code.
         else
