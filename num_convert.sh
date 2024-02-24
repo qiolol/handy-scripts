@@ -70,7 +70,7 @@ function num_convert() {
         echo "${NUM}"
     else
         # a priori convert to decimal with Bash built-in
-        NUM=$(("${FROM}"#"${3}"))
+        NUM=$(("${FROM}"#"${NUM}"))
 
         # if converting to decimal, we're done
         if [[ "${TO}" == "10" ]]
