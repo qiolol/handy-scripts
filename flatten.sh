@@ -70,7 +70,7 @@ to <destination>"
 # '/' or extra trailing/leading '/'s) and 1 otherwise
 function is_same_dir()
 {
-    if [[ $(realpath --relative-base="${1}" "${2}")  == "." ]]
+    if [[ $(realpath --relative-base="${1}" "${2}") == "." ]]
     then
         return 0
     fi
@@ -161,8 +161,8 @@ function rename_backups()
     done
 }
 
-# Makes sure all files were moved from $2 to $1 (assuming we're moving files and
-# $COPYING is false), returning 1 if any files remain in the $1 and 0 otherwise
+# Makes sure all files were moved from $1 to $2 (assuming we're moving files and
+# $COPYING is false), returning 1 if any files remain in $1 and 0 otherwise
 function look_for_leftovers()
 {
     if [[ $COPYING == true ]]
@@ -182,7 +182,7 @@ function look_for_leftovers()
     do
         if [[ -d "${THING}" ]]
         then
-            look_for_leftovers "${THING}"
+            look_for_leftovers "${THING}" "${2}"
         elif [[ -f "${THING}" ]]
         then
             echo "WARNING: Files were left over after flattening!"
