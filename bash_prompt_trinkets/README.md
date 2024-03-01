@@ -76,7 +76,4 @@ And then re-source `.bashrc` in any currently-open shells for the trinket to sta
 
 ![randbow updating once prompt command is enabled and .bashrc is sourced in an open shell](./images/prompt_command.png)
 
-:sparkles:
-
-# license
-[MIT](https://opensource.org/licenses/MIT)
+:game_die::rainbow:
