@@ -7,22 +7,36 @@ function print_usage() {
 DESCRIPTION
 \tReports whether the given strings are identical
 PARAMETERS
-\tstringA\tThe first string
-\tstringB\tThe second string"
+\tstringA\tA string to compare
+\tstringB\tA string to compare it to"
 }
 
 function parse_arguments()
 {
-    local -r REQUIRED_PARAMS=2
-    local -r MAX_PARAMS=2
+    local -r REQUIRED_ARGS=2
+    local -r MAX_ARGS=2
 
-    if (( ${#} < REQUIRED_PARAMS ||
-          ${#} > MAX_PARAMS ))
+    if (( ${#} < REQUIRED_ARGS ||
+          ${#} > MAX_ARGS ))
     then
         return 1
     fi
 
     return 0
+}
+
+function strcmp()
+{
+    if [[ "${1}" == "${2}" ]]
+    then
+        echo "Identical strings"
+
+        return 0
+    else
+        echo "Different strings"
+
+        return 1
+    fi
 }
 
 if ! parse_arguments "${@}"
@@ -32,14 +46,6 @@ then
     exit 1
 fi
 
-# Compare the strings.
-if [[ "${1}" == "${2}" ]]
-then
-    echo "Identical strings"
+strcmp "${1}" "${2}"
 
-    exit 0
-else
-    echo "Different strings"
-
-    exit 1
-fi
+exit # Use the function's return code.
