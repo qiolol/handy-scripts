@@ -47,5 +47,3 @@ then
 fi
 
 strcmp "${1}" "${2}"
-
-exit # Use the function's return code.
