@@ -13,11 +13,9 @@ PARAMETERS
 
 function parse_arguments()
 {
-    local -r REQUIRED_ARGS=1
-    local -r MAX_ARGS=1
+    local -r MIN_ARGS=1
 
-    if (( ${#} < REQUIRED_ARGS ||
-          ${#} > MAX_ARGS ))
+    if (( ${#} < MIN_ARGS ))
     then
         return 1
     fi
@@ -27,7 +25,7 @@ function parse_arguments()
 
 function strlen()
 {
-    echo -n "${1}" | wc -c
+    echo -n "${*}" | wc -c
 }
 
 if ! parse_arguments "${@}"
@@ -37,6 +35,8 @@ then
     exit 1
 fi
 
-strlen "${1}"
+# To avoid requiring quoting the input string, just take all arguments in as a
+# single string.
+strlen "${*}"
 
 exit 0
