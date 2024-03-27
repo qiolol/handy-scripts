@@ -65,11 +65,16 @@ Note that the color codes (ANSI escape sequences) and surrounding syntax won't w
 ```bash
 # Re-source .bashrc with every prompt to refresh dynamic $TRINKETs
 PROMPT_COMMAND='source $HOME/.bashrc'
-# WARNING: This will have the small side-effect of preventing Python
+# WARNING: This will have side-effects, like preventing Python
 # virtual environments from decorating the prompt with "(venv dir)"
 # (but the virtual environments will still work).
-# Also, obviously, saving .bashrc in a broken state will make that
-# breakage apparent at the next prompt since it'll be immediately re-sourced.
+#
+# It will ALSO interfere with Midnight Commander, whose subshell
+# doesn't seem to support use of `PROMPT_COMMAND`, causing freezes
+# and "The shell is already running a command" error dialogs. :C
+#
+# Also, beware of saving your `.bashrc` in a broken state since this
+# will immediately re-source that breakage at the next prompt!
 ```
 
 And then re-source `.bashrc` in any currently-open shells for the trinket to start updating:
