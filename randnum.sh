@@ -13,12 +13,12 @@ function check_input() {
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo "usage: randnum [max]"
+    echo "Usage: ${0} [max]"
     echo -e "\nprints a random number in [0, max] (if no max given, [0, 32767])"
 }
 
@@ -35,10 +35,10 @@ function randnum() {
 if check_input "${@}"
 then
     randnum "${1}"
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi

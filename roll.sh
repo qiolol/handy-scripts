@@ -27,16 +27,16 @@ function parse_input() {
                 # "12"
                 SIDES="${BASH_REMATCH[1]}"
             fi
-            
+
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo -e "usage: roll <[Xd]Y>"
+    echo -e "Usage: ${0} <[Xd]Y>"
     echo -e "\nrolls X dice with Y sides"
     echo "e.g., \"1d12\", \"d12\", and \"12\" all roll one 12-sided die"
 }
@@ -62,10 +62,10 @@ function roll() {
 if parse_input "${@}"
 then
     roll
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi

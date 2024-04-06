@@ -17,16 +17,16 @@ function parse_input() {
             else
                 readonly RUN_LIMIT=999 # run 999 times by default
             fi
-            
+
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo "usage: run_exe_until_fail <executable> [times]"
+    echo "Usage: ${0} <executable> [times]"
     echo -e "\nruns executable the given number of times (or 999 times if unspecified)"
 }
 
@@ -36,13 +36,13 @@ function run_exe_until_fail()
     for (( RUN_COUNT = 1; RUN_COUNT <= RUN_LIMIT; ++RUN_COUNT ))
     do
         echo -ne "\rRun #${RUN_COUNT}... "
-    
+
         if EXE_OUTPUT="$("${1}" 2>&1)"; then
-            : # Do nothing here cuz inverting the conditional would make 
+            : # Do nothing here cuz inverting the conditional would make
               # us lose the exit status.
         else
             local EXE_EXIT_STATUS="${?}"
-            
+
             echo "exe failed with exit code ${EXE_EXIT_STATUS}!"
             echo "==== exe output start =========================================================="
             echo "${EXE_OUTPUT}"
@@ -57,11 +57,11 @@ if parse_input "${@}"
 then
     run_exe_until_fail "${1}"
     echo "No failure after ${RUN_LIMIT} runs."
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi
 
@@ -70,10 +70,10 @@ fi
 # import random
 # import sys
 # import time
-# 
+#
 # def coinFlip():
 #     return random.choice([True, False])
-# 
+#
 # if coinFlip() == True:
 #     print("(STDOUT) exec success")
 #     time.sleep(1)

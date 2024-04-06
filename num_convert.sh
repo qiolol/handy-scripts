@@ -13,7 +13,7 @@
 # it'd be difficult to parse as valid input; a base 128 number
 # system might use the whole ASCII table as valid digits.
 #
-# As an example, a base 60 numeral convention might use 0-9, A-Z, 
+# As an example, a base 60 numeral convention might use 0-9, A-Z,
 # and a-x for its 60 digits (10 + 26 + 24 = 60). In this convention,
 # the base 10 number "1,460" is written "OK" in base 60.
 # `bc` writes "1,460" as "24 20" in base 60, which is equivalent:
@@ -38,7 +38,7 @@ function check_input() {
         local -r FROM="${1}"
         local -r TO="${2}"
         local -r NUM="${3}"
-        
+
         # correct arg format
         if [[ "${FROM}" =~ ^2|10|16$ &&
             "${TO}" =~ ^[0-9]+$ &&
@@ -47,12 +47,12 @@ function check_input() {
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo "usage: num_convert <from_base> <to_base> <number>"
+    echo "Usage: ${0} <from_base> <to_base> <number>"
     echo -e "\tfrom_base can only be 2, 10, or 16"
     echo -e "\tto_base can be anything"
     echo -e "\nconverts a number from one base to another"
@@ -64,7 +64,7 @@ function num_convert() {
     local -r FROM="${1}"
     local -r TO="${2}"
     local NUM="${3}"
-    
+
     if [[ "${FROM}" == "${TO}" ]]
     then
         echo "${NUM}"
@@ -88,10 +88,10 @@ function num_convert() {
 if check_input "${@}"
 then
     num_convert "${1}" "${2}" "${3}"
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi

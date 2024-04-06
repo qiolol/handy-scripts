@@ -58,7 +58,7 @@ function check_dirs()
 
 function print_usage()
 {
-    echo "Usage: flatten [-c] <source> <destination>"
+    echo "Usage: ${0} [-c] <source> <destination>"
     echo -e "\n\t[-c] Copy, instead of move, files from source to destination"
     echo -e "\t<source> Directory to move or copy files from"
     echo -e "\t<destination> Directory to move or copy files to"

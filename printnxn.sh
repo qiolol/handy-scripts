@@ -11,16 +11,16 @@ function parse_input() {
         then
             readonly HORIZONTAL_CHARS="${BASH_REMATCH[1]}"
             readonly VERTICAL_CHARS="${BASH_REMATCH[2]}"
-            
+
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo "usage: printnxn <char> <dimensions>"
+    echo "Usage: ${0} <char> <dimensions>"
     echo -e "\nprints a char in the given \"WxH\" dimensions (W across, H down)"
 }
 
@@ -39,10 +39,10 @@ function printnxn() {
 if parse_input "${@}"
 then
     printnxn "${1}"
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi

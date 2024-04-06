@@ -12,7 +12,7 @@ function check_input() {
 }
 
 function print_usage() {
-    echo "usage: alphnum <string>"
+    echo "Usage: ${0} <string>"
     echo -e "\nprints whether the string is alphanumeric and returns:"
     echo -e "\t0 if string is alphanumeric"
     echo -e "\t1 if string is not alphanumeric"

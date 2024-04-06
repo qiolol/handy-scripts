@@ -10,12 +10,12 @@ function parse_input() {
             return 0
         fi
     fi
-    
+
     return 1
 }
 
 function print_usage() {
-    echo "usage: printn <char> <number>"
+    echo "Usage: ${0} <char> <number>"
     echo -e "\nprints a char the given number of times"
 }
 
@@ -31,10 +31,10 @@ function printn() {
 if parse_input "${@}"
 then
     printn "${1}" "${2}"
-    
+
     exit 0
 else
     print_usage
-    
+
     exit 1
 fi
