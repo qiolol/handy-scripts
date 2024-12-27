@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Echo a "█". Shaded blocks can be used by specifying args:
+# Echoes a "█"
+#
+# Shaded blocks can be used by specifying arg `1` as:
 #     "dark" = ▓
 #     "medium" = ▒
 #     "light" = ░

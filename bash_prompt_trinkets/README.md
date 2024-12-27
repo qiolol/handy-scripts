@@ -64,7 +64,7 @@ Note that the color codes (ANSI escape sequences) and surrounding syntax won't w
 
 ```bash
 # Re-source .bashrc with every prompt to refresh dynamic $TRINKETs
-PROMPT_COMMAND='source $HOME/.bashrc'
+# 
 # WARNING: This will have side-effects, like preventing Python
 # virtual environments from decorating the prompt with "(venv dir)"
 # (but the virtual environments will still work).
@@ -75,6 +75,7 @@ PROMPT_COMMAND='source $HOME/.bashrc'
 #
 # Also, beware of saving your `.bashrc` in a broken state since this
 # will immediately re-source that breakage at the next prompt!
+PROMPT_COMMAND="source ${HOME}/.bashrc"
 ```
 
 And then re-source `.bashrc` in any currently-open shells for the trinket to start updating:
