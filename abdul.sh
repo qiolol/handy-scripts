@@ -668,7 +668,7 @@ function evaluate_unit_conversion()
        ! units_in TEMPERATURE &&
        ! units_in TIME
     then
-        return 1 # One or both of the units are not recognized!
+        return 1 # Units unknown or in different categories!
     fi
 
     if [[ "${FROM_UNIT}" == "${TO_UNIT}" ]]
@@ -726,7 +726,7 @@ function evaluate_unit_conversion()
     return 0
 }
 
-# Replaces all special strings in `$1`
+# Replaces all special strings in the input
 function replace_special_strings()
 {
     local TEMP_INPUT="${@}"
@@ -739,7 +739,7 @@ function replace_special_strings()
                      sed "s/${STRING}/${REPLACEMENT_STRING}/g")
     done
 
-    echo -e "${TEMP_INPUT}"
+    echo "${TEMP_INPUT}"
 }
 
 # Rounds the `RESULT` to `DECIMAL_DIGITS` decimal places
@@ -763,15 +763,17 @@ function strip_result_zeroes()
     RESULT=$(echo "${RESULT}" | sed "/\./ s/\.\{0,1\}0\{1,\}$//")
 }
 
-# Records whether `RESULT` digits repeat after the decimal point
+# Checks whether `RESULT` digits seem to repeat after the decimal point
 function repeating_result_decimal_digits()
 {
     local -r REGEX="^[0-9]*\.([0-9]+)\1+$"
 
     if [[ ${RESULT} =~ ${REGEX} ]]
     then
-        readonly RESULT_REPEATS=true
+        return 0
     fi
+
+    return 1
 }
 
 # Reports the `RESULT` to the user
@@ -779,12 +781,11 @@ function report_result()
 {
     round_to_decimal_digits
     strip_result_zeroes
-    repeating_result_decimal_digits
 
     echo "${RESULT}"
-    if [[ "${RESULT_REPEATS}" ]]
+    if repeating_result_decimal_digits
     then
-        echo "(Repeating, of course)"
+        echo "(Repeating, of course...)"
     fi
 }
 
