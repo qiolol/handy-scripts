@@ -3,16 +3,19 @@
 # The desired number of decimal digits to round the result to
 readonly DECIMAL_DIGITS=6
 
-# `bc` uses this value for the desired digits after the decimal, but it also
-# materially affects the results of calculations! For example,
+# This is the "scale" value to be used by `bc`.
+#
+# `bc` uses this value for the desired number of digits after the decimal, but
+# it also materially affects the results of calculations! For example,
 # ```
 # echo "scale=11; 15 * (1.07578*10^(-8))" | bc
 # ```
 # will yield the incorrect result `.00000016125`. Only when the scale increased
 # to `13` does it give the correct result, `.0000001613670`. Therefore, this
 # should be set to something very high to ensure accurate calculations. It does
-# NOT directly control the number post-decimal digits in this program, so it's
-# okay if it's very large.
+# NOT directly control the number of post-decimal digits in this program (that's
+# rounded to `DECIMAL_DIGITS` by `printf`), so it's okay if this value is very
+# big -- and, the bigger it is, the more precise astronomical calculations are.
 readonly INTERNAL_PRECISION=100
 
 ################################################################################
@@ -79,7 +82,7 @@ readonly -A LENGTH=\
 #     3. Code selects the mapping named after `FROM_UNIT`, "in", which is
 #        `INCH_CONVERSIONS`. This is the correct mapping for inches.
 #     4. Code accesses the key named after `TO_UNIT`, "ft", to assign `NUMBER`
-#        the correct conversion value to feet.
+#        the correct conversion value from inches to feet.
 # (The nameref is necessary because variable expansion at the declaration of the
 # mapping -- like `declare -A "${INCH}"=\` -- doesn't work.)
 declare -n "${INCH}"="INCH_CONVERSIONS"
@@ -800,7 +803,7 @@ readonly REPLACED_INPUT="$(replace_special_strings "${INPUT}")"
 # string replacement.)
 if evaluate_math_expression "${REPLACED_INPUT}" ||
    # If it didn't seem like a `bc` expression, try unit conversion (but without
-   # string replacement as special strings aren't supported in conversions).
+   # string replacement since special strings aren't supported in conversions).
    evaluate_unit_conversion "${INPUT}"
 then
     report_result
