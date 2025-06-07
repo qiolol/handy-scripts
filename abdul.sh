@@ -498,8 +498,11 @@ readonly -A YEAR_CONVERSIONS=\
 ################################################################################
 readonly -A SPECIAL_STRINGS=\
 (
-    ["pi"]="(a(1)*4)"
-    ["\([0-9]\+\)e\([0-9]\+\)"]="(\1*10^\2)" # E notation: "1e3" -> "(1*10^3)"
+    ["pi"]="3.14159265358979323846264338327950288419716939937510" # 50 digits
+    ["([0-9]+)e([0-9]+)"]="(\1*10^\2)" # E notation: "1e3" -> "(1*10^3)"
+    ["ln\(([0-9]+)\)"]="l(\1)" # "ln(3)" -> "l(3)"
+    ["log\(([0-9]+)\)"]="l(\1) \/ l(10)" # "log(3)" -> "l(3) / l(10)"
+    ["log([0-9]+)\(([0-9]+)\)"]="l(\2) \/ l(\1)" # "log2(3)" -> "l(3) / l(2)"
 )
 
 function print_usage()
@@ -512,7 +515,7 @@ USAGES
 EXAMPLES
 \t${0} 22/7
 \t${0} 2^4 + 2^4 - 2^5
-\t${0} \"2 * (3 + 4)\"
+\t${0} \"2 * (3 + 4) * log2(128)\"
 \t${0} 1e3 \* pi
 \t${0} 400 troy-ounces to lbs
 \t${0} 68 F C
@@ -586,8 +589,21 @@ SPECIAL STRINGS
 \tequivalents in \`bc\` math expressions (but NOT unit conversions) for
 \tconvenience:
 
-\tpi\t\tGets replaced by the value of the mathematical constant pi (π)
-\tE notation\tThe 'e' in a number like \"1e3\" gets replaced by \"*10^\""
+\t\"pi\"\t\tTranslated to the value of the mathematical constant pi (π)
+\tE notation\tThe 'e' in a number like \"1e3\" gets translated to \"*10^\".
+\tLogarithms\t\"ln(x)\"
+\t\t\t\tTranslated to the \`bc\` syntax for the natural
+\t\t\t\tlogarithm of \"x\", \"l(x)\".
+
+\t\t\t\"log(x)\"
+\t\t\t\tTranslated to \"log base-10 of x\" as its
+\t\t\t\t\`bc\`-friendly equivalence in terms of natural
+\t\t\t\tlogarithms: \"l(x) / l(10)\"
+
+\t\t\t\"log42(x)\"
+\t\t\t\tSimilarly translated (with \"42\" chosen as an
+\t\t\t\texample) to \"log base-42 of x\", \"l(x) / l(42)\".\
+"
 }
 
 # Tries processing input as a math expression by running it through `bc`
@@ -739,7 +755,7 @@ function replace_special_strings()
         REPLACEMENT_STRING="${SPECIAL_STRINGS[${STRING}]}"
 
         TEMP_INPUT=$(echo "${TEMP_INPUT}" |
-                     sed "s/${STRING}/${REPLACEMENT_STRING}/g")
+                     sed -E "s/${STRING}/${REPLACEMENT_STRING}/g")
     done
 
     echo "${TEMP_INPUT}"
