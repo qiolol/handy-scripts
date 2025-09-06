@@ -616,8 +616,12 @@ function evaluate_math_expression()
     # Also, results longer than 70 characters get truncated with `\` and a
     # newline, which causes problems with `printf`. To get around this, use
     # `read`.
-    read RESULT <<< $(bc -l 2> /dev/null <<< \
-                      "scale=${INTERNAL_PRECISION}; ${@}")
+    #
+    # WARNING: Using `read -r` will cause another problem with `printf`: the `\`
+    # will be stored in `RESULT` and flagged as an invalid digit. That's why
+    # `-r` is omitted, despite ShellCheck's recommendation to use it.
+    read RESULT <<< "$(bc -l 2> /dev/null <<< \
+                       "scale=${INTERNAL_PRECISION}; ${*}")"
 
     if [[ ! "${RESULT}" ]]
     then
@@ -670,7 +674,7 @@ function evaluate_unit_conversion()
     # Extract the number and units.
     local -r REGEX="^([0-9^.,]+)\s+(\S+)\s+(to)?\s*(\S+)\s*$"
 
-    if ! [[ "${@}" =~ ${REGEX} ]]
+    if ! [[ "${*}" =~ ${REGEX} ]]
     then
         return 1 # Input is in incorrect format!
     fi
@@ -726,15 +730,15 @@ function evaluate_unit_conversion()
             fi
         fi
 
-        read RESULT <<< $(bc -l 2> /dev/null <<< \
-                          "scale=${INTERNAL_PRECISION}; ${FORMULA}")
+        read RESULT <<< "$(bc -l 2> /dev/null <<< \
+                           "scale=${INTERNAL_PRECISION}; ${FORMULA}")"
     else
         # Non-temperature conversions are just multiplication by a ratio.
         local -n MAPPING_REF="${FROM_UNIT}"
         local -r CONVERSION_RATIO=${MAPPING_REF[${TO_UNIT}]}
-        read RESULT <<< $(bc -l 2> /dev/null <<< \
-                          "scale=${INTERNAL_PRECISION}; \
-                          ${NUMBER} * ${CONVERSION_RATIO}")
+        read RESULT <<< "$(bc -l 2> /dev/null <<< \
+                           "scale=${INTERNAL_PRECISION}; \
+                           ${NUMBER} * ${CONVERSION_RATIO}")"
     fi
 
     if [[ ! "${RESULT}" ]]
@@ -748,7 +752,7 @@ function evaluate_unit_conversion()
 # Replaces all special strings in the input
 function replace_special_strings()
 {
-    local TEMP_INPUT="${@}"
+    local TEMP_INPUT="${*}"
 
     for STRING in "${!SPECIAL_STRINGS[@]}"
     do
@@ -808,7 +812,7 @@ function report_result()
     fi
 }
 
-readonly INPUT="${@,,}" # Lowercased for easier processing
+readonly INPUT="${*,,}" # Lowercased for easier processing
 readonly REPLACED_INPUT="$(replace_special_strings "${INPUT}")"
 
 # First, try processing the input with string replacement as a `bc` expression.
