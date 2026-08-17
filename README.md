@@ -1,5 +1,5 @@
 # what
-Cool little things to include in your Bash PS1 prompt
+Handy scripts, along with cool little things to include in your Bash PS1 prompt!
 
 ### echo_rainbow.sh
 Vanilla rainbow
@@ -23,15 +23,15 @@ See if you get any cool patterns! ... Or an ultra rare ***single color***...
 (Considering I've never gotten that once over several months at time of writing of seeing at least a few dozen prompts per day, I feel discouraged from ever buying Powerball tickets.)
 
 # how
-Copy the functions in the .sh files into `~/.bashrc`.
-
-Alternatively (and preferably), put the .sh files themselves somewhere and then symlink them in a directory that's in `$PATH` (e.g., `/usr/local/bin/`) without the ".sh" extension, like this:
+Copy the scripts to somewhere `$PATH` (e.g., `/usr/local/bin/`) without the ".sh" extension, like this:
 
 ```bash
 ln -s /somewhere/echo_rainbow.sh /usr/local/bin/echo_rainbow
 ```
 
-Now, `echo_rainbow.sh` can be called in the shell with `echo_rainbow` (or whatever you named the symlink).
+Alternatively, use `sudo make install`, letting Make do the work for you. (Symmetrically, `sudo make uninstall` removes all the copied files.) 
+
+Afterwards, `echo_rainbow.sh` can be called in the shell with `echo_rainbow` (or whatever you named the symlink).
 
 Then just call it in the PS1 definition in `~/.bashrc`:
 
@@ -40,10 +40,10 @@ Then just call it in the PS1 definition in `~/.bashrc`:
 PS1="[$(echo_rainbow) \t \W]$ "
 ```
 
-Due to Bash's messy color syntax for the braces and things, I like to import the color definitions from `color_defs.sh` (also symlinked in `$PATH` as `color_defs`) and define the PS1 like this:
+Due to Bash's messy color syntax for the braces and things, I like to import the color definitions from `color_defs.sh` (installed to `/usr/local/lib/handy-scripts` by `sudo make install`) and define the PS1 like this:
 
 ```bash
-source color_defs
+source /usr/local/lib/handy-scripts/color_defs.sh
 LEFT_BRACE="\[$ANSI_BOLD_GREEN\][" # [
 TRINKET="$(echo_rainbow)"
 TIME_PART="\[$ANSI_BOLD_GREEN\]\t" # HH:MM:SS

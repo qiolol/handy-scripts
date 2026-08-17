@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
-source color_defs # color_defs.sh linked in $PATH
+# Where the color library is depends on whether the scripts were installed.
+__libdir="@LIBDIR@" # Replaced by `sed` during `make install`
+if [[ -r "${__libdir}/color_defs.sh" ]]
+then
+    # When installed, get color library from the library directory.
+    source "${__libdir}/color_defs.sh"
+else
+    # When not installed, assume the color library is next to this script.
+    __selfdir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+    source "${__selfdir}/color_defs.sh"
+fi
+unset __libdir __selfdir
 
 # Echo a random-colored "███████"
 # Each of the seven blocks is randomly colored one of seven rainbow colors:
