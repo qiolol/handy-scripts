@@ -8,6 +8,9 @@
 # So we need to copy those too, albeit not on `PATH` or directly executable.
 # "Copying lots of stuff with proper ownership and permissions" is known as
 # "installing", so we might as well have an installer! This is that installer.
+#
+# To add a new script, put it in `src/`, add its name (sans extension) to the
+# `BIN_SCRIPTS` list below, and re-run `sudo make install`.
 
 # Set a prefix (unless one's already set):
 PREFIX     ?= /usr/local
@@ -16,7 +19,7 @@ BINDIR      = $(PREFIX)/bin
 LIBDIR      = $(PREFIX)/lib/handy-scripts
 SRCDIR     = src
 # Comporting to the sacred FHS (and assuming `PREFIX` is `/usr/local`), this
-# will install the scripts thusly:  
+# will install the scripts thusly:
 #     - `/usr/local/bin/script`: script on `PATH`
 #     - `/usr/local/lib/handy-scripts/lib_script`: lib script (NOT run directly)
 
@@ -38,23 +41,24 @@ BIN_SCRIPTS = \
 	randstr \
 	roll \
 	run_exe_until_fail \
+	stratrand \
 	strcmp \
 	strlen \
 	unique_chars
 
 # Copies all files with correct permissions to their installed destinations
 install:
-	# Lib script (0644 = readable, NOT executable)
+	@# Lib script (0644 = readable, NOT executable)
 	install -d "$(DESTDIR)$(LIBDIR)"
 	install -m 0644 "$(SRCDIR)/color_defs.sh" "$(DESTDIR)$(LIBDIR)/"
 
-	# Scripts (0755 = executable, on `PATH`)
-	# 
-	# They're installed WITHOUT the `.sh` and with instances of "@LIBDIR@"
-	# replaced with what `$(LIBDIR)` resolves to at installtime.
+	@# Scripts (0755 = executable, on `PATH`)
+	@#
+	@# They're installed WITHOUT the `.sh` and with instances of "@LIBDIR@"
+	@# replaced with what `$(LIBDIR)` resolves to at installtime.
 	install -d "$(DESTDIR)$(BINDIR)"
-	
-	@for SCRIPT in $(BIN_SCRIPTS); do \
+
+	for SCRIPT in $(BIN_SCRIPTS); do \
 		sed 's|@LIBDIR@|$(LIBDIR)|g' "$(SRCDIR)/$$SCRIPT.sh" > "$$SCRIPT.tmp"; \
 		install -m 0755 "$$SCRIPT.tmp" "$(DESTDIR)$(BINDIR)/$$SCRIPT"; \
 		rm -f "$$SCRIPT.tmp"; \
@@ -63,11 +67,11 @@ install:
 # Symmetrically removes all files copied during installation
 uninstall:
 	rm -rf "$(DESTDIR)$(LIBDIR)"
-	
-	@for SCRIPT in $(BIN_SCRIPTS); do \
+
+	for SCRIPT in $(BIN_SCRIPTS); do \
 		rm -f "$(DESTDIR)$(BINDIR)/$$SCRIPT"; \
 	done
-	
+
 # To test this:
 # ```
 # make DESTDIR=/tmp/stage install
