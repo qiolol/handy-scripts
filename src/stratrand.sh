@@ -77,7 +77,7 @@ DESCRIPTION
 \t\"strata\" from which to randomly pick files. This way, the files in 'blue/'
 \tdo not dominate the selection despite being the most numerous. Of the 4 files
 \treturned, 2 files will necessarily be from the same stratum. However, that
-\tstratum won't be 'red/' since it only has one file (repeated files are not
+\tstratum won't be 'red/' since it only has one file (repeated paths are not
 \tallowed in the output).
 
 \tThis is handy to get a \"fairly\" random playlist of episodes without having
