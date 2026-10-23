@@ -6,6 +6,25 @@
 # contains characters like '$', use SINGLE-QUOTES and ESCAPE them: `'\$'`
 # (Otherwise, '$' will be treated as a regex anchor AND Bash will try expanding
 # it to make matters worse.)
+#
+# For example, to find files that contain "foo" (case insensitive) recursively
+# in the current directory tree:
+# ```
+# contents "foo"
+# ```
+# To find files that contain "foo" at the end of a line (using regex):
+# ```
+# contents 'foo$'
+# ```
+# To find files that contain "foo$" (NOT using regex):
+# ```
+# contents 'foo\$'
+# ```
+# To find ONLY files with a `.txt` extension (case insensitive) that contain
+# "foo":
+# ```
+# contents "foo" "*.txt"
+# ```
 function contents()
 {
     if [[ $# > 1 ]]

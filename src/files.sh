@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 # An ergonomic `find` wrapper for searching for files
+#
+# For example, to search for files with the extension `.txt` (case insensitive)
+# recursively in the current directory tree, run:
+# ```
+# files "*.txt"
+# ```
 function files()
 {
     find . -iname "*${*}*"
