@@ -26,13 +26,15 @@ SRCDIR     = src
 .PHONY: install uninstall
 
 BIN_SCRIPTS = \
+	abdul \
+	alnum \
+	bge \
+	contents \
 	echo_block \
 	echo_rainbow \
 	echo_rainbow_edge_fade \
 	echo_randbow \
-	abdul \
-	alnum \
-	bge \
+	files \
 	flatten \
 	num_convert \
 	printn \
