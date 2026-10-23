@@ -43,7 +43,7 @@ BIN_SCRIPTS = \
 	randstr \
 	roll \
 	run_exe_until_fail \
-	stratrand \
+	stratpick \
 	strcmp \
 	strlen \
 	unique_chars

@@ -5,10 +5,10 @@
 #
 # See the example in `print_usage()` for an overview.
 #
-# For handy ways to use this (assuming it's `stratrand` on your `PATH`), edit
+# For handy ways to use this (assuming it's `stratpick` on your `PATH`), edit
 # your `~/.bashrc`:
 # ```
-# alias randshows="stratrand v 25 \${SHOWS} | mpv --playlist=- &>/dev/null &"
+# alias randshows="stratpick v 25 \${SHOWS} | mpv --playlist=- &>/dev/null &"
 #
 # function randsongs()
 # {
@@ -17,7 +17,7 @@
 #     echo "From which directory?"
 #     return 1
 #   fi
-#   stratrand a 25 "${1}" | mpv --playlist=- &>/dev/null &
+#   stratpick a 25 "${1}" | mpv --playlist=- &>/dev/null &
 # }
 # ```
 # Then you can use it like this:
@@ -336,7 +336,7 @@ function contains()
 
 # Prints the requested number of files (of the requested format) to stdout,
 # returning non-zero when there was a problem doing so
-function stratrand()
+function stratpick()
 {
     local -a FILES=()
     local FILES_FOUND=0
@@ -410,4 +410,4 @@ then
     exit 1
 fi
 
-stratrand
+stratpick
