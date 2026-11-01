@@ -139,3 +139,6 @@ export RGB_GREEN='\e[38;2;0;255;0m'
 export RGB_CYAN='\e[38;2;0;255;255m'
 export RGB_BLUE='\e[38;2;0;0;255m'
 export RGB_VIOLET='\e[38;2;127;0;255m'
+
+export RGB_WHITE='\e[38;2;255;255;255m'
+export RGB_DARK_GRAY='\e[38;2;64;64;64m' # Black's hard to see on dark terminals
