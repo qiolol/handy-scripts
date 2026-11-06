@@ -47,7 +47,7 @@ DESCRIPTION
 \tdirectly inside of 'dir'.
 
 \tFor example, take this directory hierarchy:
-\t
+
 \tdir/
 \t├── toplevelfile0.mp3
 \t├── toplevelfile1.mp3
@@ -65,14 +65,14 @@ DESCRIPTION
 \t    ├── blue8.mp3
 \t    └── subdir
 \t        └── subdir0.mp3
-\t
+
 \tRequesting 4 files from 'dir' will return those files from each of the 3
 \t\"strata\" in the hierarchy:
-\t
+
 \t\tStratum 1: The files directly inside 'dir' ('toplevelfile*.mp3')
 \t\tStratum 2: The single file in 'red/'
 \t\tStratum 3: The files in 'blue/' and 'blue/subdir/'
-\t
+
 \tThe subdirectories of 'dir/', and the files directly in 'dir/', are treated as
 \t\"strata\" from which to randomly pick files. This way, the files in 'blue/'
 \tdo not dominate the selection despite being the most numerous. Of the 4 files
@@ -82,6 +82,9 @@ DESCRIPTION
 
 \tThis is handy to get a \"fairly\" random playlist of episodes without having
 \tshows with more episodes dominate shows with fewer episodes in the playlist.
+
+\tLinks are supported, too, so you can use this with \"playlist directories\"
+\tfilled with links as an alternative to traditional playlist files.
 
 PARAMETERS
 \tREQUIRED
@@ -241,6 +244,21 @@ function right_format()
     fi
 }
 
+# Warns about any broken links at any level (`-L`) throughout `TOPLEVEL_DIR`
+function warn_broken_links()
+{
+    local -a BROKEN=()
+    mapfile -d '' -t BROKEN < <(
+        find -L "${TOPLEVEL_DIR}" \
+            -type l \
+            -print0
+    )
+    if (( ${#BROKEN[@]} ))
+    then
+        printf 'Broken link warning: %s\n' "${BROKEN[@]}" >&2
+    fi
+}
+
 # Builds a stratum as a global array from an array accessed via nameref in `$1`
 # and populates `STRATA_NAMES` with the new stratum's name, generated using the
 # stratum index in `$2`
@@ -259,8 +277,8 @@ function build_stratum()
     STRATA_NAMES+=("STRATUM_$INDEX")
 }
 
-# Constructs the strata whose files to sample from the files and directories
-# directly inside `TOPLEVEL_DIR`
+# Constructs the strata whose files to sample from the (possibly symlink) files
+# and directories directly inside `TOPLEVEL_DIR`
 #
 # See the example in `print_usage()`.
 #
@@ -294,28 +312,46 @@ function build_strata()
     done
     STRATA_NAMES=() # The global array holding the names of all strata
 
-    # First, create the stratum of the top-level files of `TOPLEVEL_DIR`.
+    # First, warn about any broken links.
+    warn_broken_links
+
+    # Create the stratum of the top-level files of `TOPLEVEL_DIR`.
     #
-    # `mapfile` runs `find` and loads its NUL-separated list into `TMP_ARR`.
-    mapfile -d '' -t TMP_ARR < <(find "${TOPLEVEL_DIR}" -maxdepth 1 -type f -print0)
+    # `mapfile` runs `find` (with support for symlinks) and loads its
+    # NUL-separated list into `TMP_ARR`.
+    mapfile -d '' -t TMP_ARR < <(
+        find -L "${TOPLEVEL_DIR}" \
+            -maxdepth 1 \
+            -type f \
+            -print0
+    )
     if (( ${#TMP_ARR[@]} ))
     then
         build_stratum TMP_ARR "$INDEX"
-        (( INDEX++ ))
+        INDEX=$((INDEX + 1))
     fi
 
     # Then create one stratum per immediate subdirectory of `TOPLEVEL_DIR`.
     local -a SUBDIRS=()
-    mapfile -d '' -t SUBDIRS < <(find "${TOPLEVEL_DIR}" -mindepth 1 -maxdepth 1 -type d -print0)
+    mapfile -d '' -t SUBDIRS < <(
+        find -L "${TOPLEVEL_DIR}" \
+            -mindepth 1 -maxdepth 1 \
+            -type d \
+            -print0
+    )
 
     local SUBDIR
     for SUBDIR in "${SUBDIRS[@]}"
     do
-        mapfile -d '' -t TMP_ARR < <(find "${SUBDIR}" -type f -print0)
+        mapfile -d '' -t TMP_ARR < <(
+            find -L "${SUBDIR}" \
+                -type f \
+                -print0
+        )
         if (( ${#TMP_ARR[@]} ))
         then
             build_stratum TMP_ARR "$INDEX"
-            (( INDEX++ ))
+            INDEX=$((INDEX + 1))
         fi
     done
 }
@@ -360,7 +396,9 @@ function stratpick()
         # the end of the search are randomized rather than always being the
         # first strata in `STRATA_NAMES`.
         local -a STRATA_PASS_ORDER
-        mapfile -t STRATA_PASS_ORDER < <(printf '%s\n' "${STRATA_NAMES[@]}" | shuf)
+        mapfile -t STRATA_PASS_ORDER < <(
+            printf '%s\n' "${STRATA_NAMES[@]}" | shuf
+        )
         local STRATUM_NAME
         local MADE_PROGRESS=0
         for STRATUM_NAME in "${STRATA_PASS_ORDER[@]}"
