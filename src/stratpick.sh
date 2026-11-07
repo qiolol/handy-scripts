@@ -80,8 +80,11 @@ DESCRIPTION
 \tstratum won't be 'red/' since it only has one file (repeated paths are not
 \tallowed in the output).
 
-\tThis is handy to get a \"fairly\" random playlist of episodes without having
-\tshows with more episodes dominate shows with fewer episodes in the playlist.
+\tWhen requesting fewer files than there are strata, the strata that get skipped
+\tare chosen at random.
+
+\tThis is handy to get a \"fairly\" random playlist of files without having
+\tfolders with more files dominate the playlist.
 
 \tLinks are supported, too, so you can use this with \"playlist directories\"
 \tfilled with links as an alternative to traditional playlist files.
@@ -375,7 +378,7 @@ function contains()
 function stratpick()
 {
     local -a FILES=()
-    local FILES_FOUND=0
+    local -A SEEN=() POS=()
 
     # Identify the strata in the `TOPLEVEL_DIR`.
     build_strata
@@ -384,57 +387,89 @@ function stratpick()
         return 1
     fi
 
-    # Pick random files from each stratum until we hit the requested number.
-    local ATTEMPTS=0 # Passes over all strata that found no files
-    local MAX_ATTEMPTS=100
-    while (( FILES_FOUND < FILES_TO_GET )) && (( ATTEMPTS < MAX_ATTEMPTS ))
+    # First, clean up the set of files to select from.
+    #
+    # In each stratum, keep only files of the right format, shuffle the files,
+    # and drop strata that contain no files of the right format entirely.
+    local -a LIVE=()
+    local STRATUM_NAME F
+    for STRATUM_NAME in "${STRATA_NAMES[@]}"
     do
-        # In each pass over the strata, randomize the order of the strata. We
-        # still go through every stratum on each pass, but randomizing the order
-        # of strata means that, when the number of files to get is greater than
-        # the number of strata, the strata which contribute repeated files at
-        # the end of the search are randomized rather than always being the
-        # first strata in `STRATA_NAMES`.
-        local -a STRATA_PASS_ORDER
-        mapfile -t STRATA_PASS_ORDER < <(
-            printf '%s\n' "${STRATA_NAMES[@]}" | shuf
-        )
-        local STRATUM_NAME
-        local MADE_PROGRESS=0
-        for STRATUM_NAME in "${STRATA_PASS_ORDER[@]}"
+        # ShellCheck issues a false positive SC2178 warning on these, thinking
+        # `REF` is an array which is being assigned the string `$STRATUM_NAME`.
+        # shellcheck disable=SC2178
+        local -n REF="$STRATUM_NAME"
+        local -a KEEP=() SHUFFLED=()
+        for F in "${REF[@]}"
         do
-            (( FILES_FOUND == FILES_TO_GET )) && break # Prevent overshoot
-
-            local -n REF="$STRATUM_NAME"
-            local FILE_INDEX
-            FILE_INDEX=$(shuf -i "0-$(( ${#REF[@]} - 1 ))" -n1)
-            local RANDOM_FILE="${REF[FILE_INDEX]}"
-            if right_format "$RANDOM_FILE" && ! contains "$RANDOM_FILE" FILES
+            if right_format "$F"
             then
-                FILES+=("$RANDOM_FILE")
-                (( FILES_FOUND++ ))
-                MADE_PROGRESS=1
+                KEEP+=("$F")
+            fi
+        done
+        if (( ${#KEEP[@]} ))
+        then
+            mapfile -d '' -t SHUFFLED < <(printf '%s\0' "${KEEP[@]}" | shuf -z)
+            REF=("${SHUFFLED[@]}")
+            LIVE+=("$STRATUM_NAME")
+        fi
+        unset -n REF
+    done
+
+    # Pick random files from each stratum until we hit the requested number or
+    # we run out of files.
+    #
+    # Each pass gives every remaining stratum one turn, in random order, and
+    # strata drop out once they're exhausted. Shuffling the order means that,
+    # when the final pass can't give every remaining stratum a turn, which
+    # stratum gets that last turn is random rather than always being the first
+    # stratum in `STRATA_NAMES`.
+    while (( ${#FILES[@]} < FILES_TO_GET && ${#LIVE[@]} > 0 ))
+    do
+        local -a ORDER=() NEXT_LIVE=()
+        mapfile -t ORDER < <(printf '%s\n' "${LIVE[@]}" | shuf)
+        for STRATUM_NAME in "${ORDER[@]}"
+        do
+            (( ${#FILES[@]} == FILES_TO_GET )) && break
+
+            # shellcheck disable=SC2178
+            local -n REF="$STRATUM_NAME"
+            local I=${POS[$STRATUM_NAME]:-0} CANDIDATE REAL
+            # Take this stratum's next file, skipping any already picked.
+            #
+            # A stratum is only in `LIVE` while it still has unvisited files
+            # (`I < ${#REF[@]}`).
+            while (( I < ${#REF[@]} ))
+            do
+                CANDIDATE=${REF[I]}
+                I=$(( I + 1 ))
+                REAL=$(realpath -- "$CANDIDATE")
+                if [[ -z ${SEEN[$REAL]+set} ]]
+                then
+                    SEEN[$REAL]=1
+                    FILES+=("$CANDIDATE")
+                    break
+                fi
+            done
+            POS[$STRATUM_NAME]=$I
+            if (( I < ${#REF[@]} ))
+            then
+                # The stratum still has files left; put it in `NEXT_LIVE`.
+                NEXT_LIVE+=("$STRATUM_NAME")
             fi
             unset -n REF
         done
-
-        if (( MADE_PROGRESS ))
-        then
-            ATTEMPTS=0
-        else
-            (( ATTEMPTS++ ))
-        fi
+        LIVE=("${NEXT_LIVE[@]}")
     done
 
     # Report what files we've found.
-    local FILE
-    for FILE in "${FILES[@]}"
-    do
-        printf '%s\n' "$FILE"
-    done
+    if (( ${#FILES[@]} ))
+    then
+        printf '%s\n' "${FILES[@]}"
+    fi
 
     # Report whether we found the number of files requested.
-    if (( FILES_FOUND != FILES_TO_GET ))
+    if (( ${#FILES[@]} < FILES_TO_GET ))
     then
         return 1
     fi
