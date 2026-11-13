@@ -46,7 +46,8 @@ BIN_SCRIPTS = \
 	stratpick \
 	strcmp \
 	strlen \
-	unique_chars
+	unique_chars \
+	vid_to_mp3
 
 # Copies all files with correct permissions to their installed destinations
 install:
